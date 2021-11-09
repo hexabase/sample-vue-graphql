@@ -2,7 +2,7 @@
   <div class="app">
     <header>
       <div class="title">
-        <h1>Hexabase</h1>
+        <img alt="hexabase logo" src="./assets/hexabase.png">
       </div>
       <div class="order">
         <button @click="handleClick('workspaces')">Workspaces</button>
@@ -10,35 +10,23 @@
       </div>
     </header>
 
-    <!-- <JobList :jobs="jobs" :order="order" /> -->
-    <Workspaces :order="order" v-if="order =='workspaces'" />
+    <Workspaces v-if="choice =='workspaces'" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
-import Job from '@/types/Job'
-import OrderTerm from '@/types/OrderTerm'
-import JobList from './components/JobList.vue'
 import Workspaces from './components/Workspace.vue'
 
 export default defineComponent({
   name: 'App',
   components: { Workspaces },
   setup() {
-    const jobs = ref<Job[]>([
-      { workspaces: 'farm worker', applicationdatastore: 'lon lon ranch'},
-      { workspaces: 'quarryman', applicationdatastore: 'death mountain'}
-     
-    ])
-    const order = ref<OrderTerm>('workspaces')
-
-    const handleClick = (term: OrderTerm) => {
-      console.log(order.value)
-      order.value = term
+    let choice = ref<string>('')
+    const handleClick = (term: string) => {
+      choice.value = term
     }
-
-    return { jobs, order, handleClick }
+    return { choice, handleClick }
   }
 });
 </script>
@@ -61,14 +49,12 @@ export default defineComponent({
     font-weight: bold;
   }
   header .title{
-    display: flex;
+    /* display: flex; */
     justify-content: center;
   }
   header img {
-    width: 60px;
+    width: 100%;
+    max-width: 250px;
     margin-right: 20px;
-  }
-  header h1 {
-    font-size: 3em;
   }
 </style>

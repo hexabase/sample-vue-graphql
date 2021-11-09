@@ -1,106 +1,94 @@
 <template>
-  <div>
+  <div class="form-body">
       Mutation create workspaces
-      <div>
-      <form>
-        <input type="text" name="name" placeholder="input new name workspace"/>
-        <!-- <button className="button-mutation" type="submit">Add Workspaces</button> -->
-        <button v-on:click="createName($event)">Add Workspaces</button>
-      </form>
+      <div class="input-field">
+        <input type="text" v-model="name" placeholder="enter the name" />
+      <button @click="addWorkspace">ADD Workspace</button>
     </div>
   </div>
-  <div class="job-list">
-    <p>Workspaces</p>
+  <div v-if="loading">
+      <h2>LOADING...</h2>
+    </div>
+  <div v-else-if="error">{{error}}</div>
+  <div class="workpaces-list"  v-else-if="workspaces">
     <transition-group name="list" tag="ul">
-        <h2> Vao day</h2>
+        <h2>Workspaces</h2>
         <li>
-            <div class="description">
-                current_workspace_id<p>{{workspaces.workspaces?.current_workspace_id}}</p>
-            </div>
+          <div class="description">
+              <p> <span> current workspace id: </span>{{workspaces.workspaces?.current_workspace_id}}</p>
+          </div>
         </li>
         <li v-for="workspace in workspaces.workspaces?.workspaces" :key="workspace.id">
-            <div class="description">
-                <p>{{workspace}}</p>
-            </div>
+          <div class="description">
+            <p>{{workspace}}</p>
+          </div>
         </li>
     </transition-group>
   </div>
+  <div v-if="resCreate">{{resCreate}}</div>
 </template>
 
 <script lang="ts">
-import { defineComponent, PropType, computed } from 'vue'
-import { gql } from "@apollo/client/core";
+import { defineComponent, ref } from 'vue'
 import { useQuery, useResult, useMutation } from "@vue/apollo-composable";
 import {WorkSpaces, WId } from '../model/workspaces'
 import {GET_WORKSPACES, ADD_WORKSPACE} from '../graphql/workspaces'
-type CreateWorkSpaceInput = {
-    createWorkSpaceInput: {
-        name: string
-    },
-}
+
 export default defineComponent({
-    data() {
-        return {
-            createWorkSpaceInput: {
-                name: ''
-            }
-        }
-    },
-    methods: {
-        createName: function (event: any) {
-            // event.preventDefault();
-            this.createWorkSpaceInput.name ='Workspace new'
-            console.log('input', this.createWorkSpaceInput.name)
-            const addWorkspace = () => ({
-                variables: {
-                    createWorkSpaceInput: {
-                        name: 'Create New'
-                    }
-                }
-            });
-            const  { mutate: createWorkspace } = useMutation(ADD_WORKSPACE, () => ({
-                variables: {
-                    createWorkSpaceInput: {
-                        name: 'Create New'
-                    }
-                }
-            }));
-            console.log('createWorkspace', createWorkspace)
-            // event.preventDefault();
-            return createWorkspace
-        }
-    },
-    setup() {
-        const { mutate: createWorkspace } = useMutation(ADD_WORKSPACE, () => ({
-                variables: {
-                    createWorkSpaceInput: {
-                        name: 'Create New'
-                    }
-                }
-            }));
-        console.log('createWorkspace', createWorkspace)
-        const { result, loading, error } = useQuery<{workspaces: WorkSpaces}>(GET_WORKSPACES);
-        const workspaces = useResult( result, [], data => data );
-        console.log('workspacesdata', {workspaces})
-        return { workspaces }
-    },
+  data() {
+    return {
+      name:''
+    }
+  },
+  methods: {
+    addWorkspace: function() {
+      this.createWorkspace({ createWorkSpaceInput: {
+       name: this.name
+      } });
+    }
+  },
+  setup() {
+    const { result, loading, error } = useQuery<{workspaces: WorkSpaces}>(GET_WORKSPACES);
+    const workspaces = useResult( result, [], data => data );
+    let resCreate = ref<any>(null);
+    const { 
+      loading: m_loading,
+      error: m_error,
+      mutate: createWorkspace
+    } =  useMutation(ADD_WORKSPACE, {
+      update: (cache, { data: {createWorkspace} }) => {
+        const data: any = cache.readQuery({ query: GET_WORKSPACES });
+        resCreate = createWorkspace
+      }
+    });
+    console.log('resCreate', resCreate)
+
+    return {
+      workspaces,
+      result,
+      loading: loading || m_loading,
+      error: error || m_error,
+      createWorkspace,
+      resCreate
+    };
+  },
 })
 </script>
 
 <style scoped>
-  .job-list {
+  .workpaces-list {
     max-width: 960px;
     margin: 40px auto;
   }
-  .job-list ul {
+  .workpaces-list ul {
     padding: 0
   }
-  .job-list li {
+  .workpaces-list li {
     list-style-type: none;
     background: white;
     border-radius: 4px;
   }
-  .job-list h2 {
+  .workpaces-list h2 {
     margin: 0 0 10px;
     text-transform: capitalize;
   }
@@ -117,5 +105,20 @@ export default defineComponent({
   }
   .list-move {
     transition: all 1s;
+  }
+  .form-body {
+    width: 100%;
+    max-width: 700px;
+    margin: 0 auto;
+    text-align: center;
+    margin-top: 10px;
+    margin-bottom: 5px;
+  }
+  .input-field {
+    width: 700 px;
+    margin: 0 auto;
+  }
+  .input-field input {
+    height: 29px;
   }
 </style>
