@@ -3,8 +3,8 @@
       Mutation create workspaces
       <div class="input-field">
         <input type="text" v-model="name" placeholder="enter the name" />
-      <button @click="addWorkspace">ADD Workspace</button>
-    </div>
+        <buttosn @click="addWorkspace">ADD Workspace</buttosn>
+      </div>
   </div>
   <div v-if="loading">
       <h2>LOADING...</h2>
