@@ -11,16 +11,18 @@
     </header>
 
     <Workspaces v-if="choice =='workspaces'" />
+    <ApplicationDatastore v-if="choice =='applicationdatastore'" />
   </div>
 </template>
 
 <script lang="ts">
 import { defineComponent, ref } from 'vue';
 import Workspaces from './components/Workspace.vue'
+import ApplicationDatastore from './components/ApplicationDatastore.vue'
 
 export default defineComponent({
   name: 'App',
-  components: { Workspaces },
+  components: { Workspaces, ApplicationDatastore },
   setup() {
     let choice = ref<string>('')
     const handleClick = (term: string) => {
